@@ -26,6 +26,6 @@ We apply the same workload generator that the authors from STRATOS used. Two cli
 *Gnuradio*: 
 
 
-
+*Mixed*: This scenario is similar to Stratos, with the same VNFs. In this case, the workload is composed by three different clients, the RUBiS that simulates a HTTP e-commerce client, the ffmpeg that represents a 30 Mbps video stream demand, and finally, the Iperf that runs a5 Mbps UDP traffic.  
 
 
