@@ -235,7 +235,7 @@ main(int argc, char **argv){
     	//netstat -untpa |  awk '{Queue += $3; } END {  print Queue }'
     	//sprintf(command,"netstat -untpaw |  | tee tmp/queue >> log/queue");
     	
-
+		//COMPUTAR O VETOR DA FILA
 		sprintf(command,"tmp/queue");
     	ifp = fopen(command,mode);
         if (ifp ==NULL) printf("ERROR IN OPEN QUEUE FILE");
