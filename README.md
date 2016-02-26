@@ -13,7 +13,7 @@ Who is Guilty?
 
 **Evaluation Scenarios**
 
-*Stratos* The NFV chain is composed by two VNFs, a Firewall and a DPI. Both the VNFs have two adjustable resources, network and CPU. We run all the combinations for the following capacities.
+*Stratos*: The NFV chain is composed by two VNFs, a Firewall and a DPI. Both the VNFs have two adjustable resources, network and CPU. We run all the combinations for the following capacities.
 
 | **Network (Mbps)** | **CPU (cap)** |
 | :------------: | :-------: |
@@ -23,7 +23,7 @@ Who is Guilty?
 
 We apply the same workload generator that the authors from STRATOS used. Two clients request a 32KB file with an initial 10000 requests by second, the rate increases by 10000 every 60 seconds up to 50000. 
 
-**Gnuradio** 
+*Gnuradio*: 
 
 
 
