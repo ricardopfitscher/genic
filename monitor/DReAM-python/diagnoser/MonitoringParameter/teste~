@@ -1,0 +1,1 @@
+{"description": "", "window": 50, "terminalCommand": "mpstat 1 1 | grep dia |  awk {' print 100-$12 '}", "values": [], "type": "", "name": "teste"}

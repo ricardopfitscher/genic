@@ -1,0 +1,1 @@
+{"function": ["average","average","average"], "name": "CPU", "interval": 1, "rule": "", "monParList": ["cpu_usage","cpu_usage","cpu_usage"], "window": 10, "result": ["overprovisioned","correctly","saturated"], "conditionals": [["<50"],["<80",">=50"],[">80"]]}
