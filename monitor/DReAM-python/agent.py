@@ -8,10 +8,24 @@ import time
 
 m = MonitoringParameter()
 m.from_JSON('cpu_usage')
+
+m2 = MonitoringParameter()
+m2.from_JSON('steal_usage')
+
 diag = DiagnosticModel()
-diag.from_JSON('CPU')
+diag.name='CPU_FULL'
+
+file = open('diagnoser/DiagnosticModels/example.string','r')
+diag_text = file.read()
+
+#diag.from_JSON('CPU_FULL')
+
+diag.from_string(diag_text)
+
 d = Diagnoser()
 d.addMonitoringParameter(m)
+d.addMonitoringParameter(m2)
+
 vnf1 = Vnfd('local',1)
 agent = Agentd('home',1,'localhost')
 

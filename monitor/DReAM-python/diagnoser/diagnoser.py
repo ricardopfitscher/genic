@@ -26,7 +26,6 @@ class MonitoringParameter(object):
 
 	def to_JSON(self):
 		data=json.dumps(self.__dict__)
-		print data
 		with open('diagnoser/MonitoringParameter/'+self.name, 'w') as outfile:
 			json.dump(self.__dict__, outfile)
 	
@@ -58,13 +57,39 @@ class DiagnosticModel(object):
 
 	def to_JSON(self):
 		data=json.dumps(self.__dict__)
-		print data
 		with open('diagnoser/DiagnosticModels/'+self.name, 'w') as outfile:
 			json.dump(self.__dict__, outfile)
 
 	def from_string(self,rule):
-		self.humanRule = rule
-		#TODO: WRITE THE PARSER
+		self.rule = rule
+		text = rule.split()
+		word = 0
+		cond = 0
+		while text[word] != 'END':
+			if text[word] == "FOREACH":
+				word+=1
+				self.interval = int(text[word])
+			elif text[word] == "FROM":
+				word+=1
+				self.window= int(text[word])
+			elif text[word] == "IF":
+				self.conditionals.append([])# TOTHINK: WHEN ADD?
+				word+=1
+				self.function.append(text[word])
+				word+=2
+				self.monParList.append(text[word])
+				word+=1
+				while text[word] != "THEN":
+					if text[word] == "IS" or text[word] == "AND":
+						word+=1
+						self.conditionals[cond].append(text[word])
+					word+=1
+				word+=1
+				self.result.append(text[word])
+				cond += 1
+			word+=1
+		self.to_JSON()
+
 
 class Diagnoser(threading.Thread):
 	"""docstring for Diagnoser"""
@@ -104,21 +129,24 @@ class Diagnoser(threading.Thread):
 	#runDiagnoser(diagnostic,ns=n)
 	def runDiagnoser(self,diagnostic,vnf=None,ns=None):
 		while not self.stop_flag:
-			for i in range(0,len(diagnostic.monParList)):
+		 	size = len(diagnostic.monParList)
+			for i in range(0,size):
 				parameter = diagnostic.monParList[i]
-				choose = filter(lambda x: x.name==parameter, self.MonitoringParameters).pop()
-				func = getattr(self,diagnostic.function[i])
-				output = func(choose.values,diagnostic.window)
-				tempCondition = True
-				for cond in diagnostic.conditionals[i]:
-					if not eval(str(output)+cond):
-						tempCondition = False
-				if tempCondition is True:
-					if vnf is not None:
-						vnf.insertState(diagnostic.result[i])
-					if ns is not None:
-						ns.insertState(diagnostic.result[i])
-
+				try:
+					choose = filter(lambda x: x.name==parameter, self.MonitoringParameters).pop()
+					func = getattr(self,diagnostic.function[i])
+					output = func(choose.values,diagnostic.window)
+					tempCondition = True
+					for cond in diagnostic.conditionals[i]:
+						if not eval(str(output)+cond):
+							tempCondition = False
+					if tempCondition is True:
+						if vnf is not None:
+							vnf.insertState(diagnostic.result[i])
+						if ns is not None:
+							ns.insertState(diagnostic.result[i])
+				except:
+					print "empty values for ", parameter 
 			time.sleep(diagnostic.interval)
 
 	def runMonitor(self,diagnostic):

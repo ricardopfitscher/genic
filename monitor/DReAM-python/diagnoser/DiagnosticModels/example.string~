@@ -1,6 +1,6 @@
-FOREACH 1 FROM 20:
-IF average OF cpu_usage IS < 80 AND IS >= 30 THEN 'normal'
-IF average OF cpu_usage IS >= 80 THEN 'sub'
-IF average OF steal_usage >= 5 THEN 'sub'
-IF average OF cpu_usage < 30 THEN 'over'
+FOREACH 1 FROM 20
+IF average OF cpu_usage IS <80 AND >=30 THEN normal
+IF average OF cpu_usage IS >=80 THEN sub
+IF average OF steal_usage IS >=5 THEN sub
+IF average OF cpu_usage IS <30 THEN over
 END

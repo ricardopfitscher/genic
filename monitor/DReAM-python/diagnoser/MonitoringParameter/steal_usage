@@ -1,0 +1,1 @@
+{"description": "", "window": 50, "terminalCommand": "mpstat 1 1 | tail -n 1 |  awk {' print $9 '}", "values": [], "type": "", "name": "steal_usage"}
