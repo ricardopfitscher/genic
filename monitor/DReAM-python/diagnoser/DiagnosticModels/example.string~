@@ -1,4 +1,4 @@
-FOREACH 1 FROM 20
+FOREACH 1 FROM 5
 IF average OF cpu_usage IS <80 AND >=30 THEN normal
 IF average OF cpu_usage IS >=80 THEN sub
 IF average OF steal_usage IS >=5 THEN sub

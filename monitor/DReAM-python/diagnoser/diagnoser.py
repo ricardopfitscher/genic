@@ -3,17 +3,27 @@ import threading
 import time
 import subprocess
 import commands
+import datetime
+from vnfd.vnfd import Vnfd
+#from nsd.nsd import Nsd
+
+#Result response for manager
+class Result(object):
+	def __init__(self,diag_model,element_id,element_state,element_time):
+		self.diagnostic_model = diag_model
+		self.element_id = element_id
+		self.element_state = element_state
+		self.element_time = element_time
+
 
 class MonitoringParameter(object):
 	"""docstring for Monitoring Parameter"""
-	#TOTHINK: Each monitoring parameter has a state?
 	def __init__(self):
 		self.name = ""
 		self.description = ""
 		self.type = ""
 		self.terminalCommand = "" 
 		self.values = []
-		#TOTHINK: self.stateList = []
 		return
 
 	def insertValue(self,value,window):
@@ -33,24 +43,26 @@ class MonitoringParameter(object):
 		with open('diagnoser/MonitoringParameter/'+name, 'r') as infile:
 			self.__dict__ = json.load(infile)
 
+	def return_JSON(self):
+		data=json.dumps(self.__dict__)
+		return data
 
 
 # In the DiagnosticModel class we store the Diagnostic Information
 # it includes the monitoring parameteres and the rules for each one
-# also, it parses the human writed rules
 
 class DiagnosticModel(object):
 	def __init__(self):
 		self.name = ""
-		self.rule = "" # the human writed string
+		#self.rule = "" # the human writed string
 		self.interval = 0 # the time interval between measurements
 		self.window = 0 # the window size for this diagnosis model
 		self.function = [] # the calculated functions  
 		self.monParList = [] # the monitoring parameter list
 		self.conditionals = [[]] # list of conditionals used to determine the state
 		self.result = [] # list of the related line results
-		
-
+		self.lastResult = ''
+	
 	def from_JSON(self,name): # read the diagnosis model from a JSON
 		with open('diagnoser/DiagnosticModels/'+name, 'r') as infile:
 			self.__dict__ = json.load(infile)
@@ -59,6 +71,10 @@ class DiagnosticModel(object):
 		data=json.dumps(self.__dict__)
 		with open('diagnoser/DiagnosticModels/'+self.name, 'w') as outfile:
 			json.dump(self.__dict__, outfile)
+
+	def return_JSON(self):
+		data=json.dumps(self.__dict__)
+		return data
 
 	def from_string(self,rule):
 		self.rule = rule
@@ -73,7 +89,7 @@ class DiagnosticModel(object):
 				word+=1
 				self.window= int(text[word])
 			elif text[word] == "IF":
-				self.conditionals.append([])# TOTHINK: WHEN ADD?
+				self.conditionals.append([])
 				word+=1
 				self.function.append(text[word])
 				word+=2
@@ -96,15 +112,20 @@ class Diagnoser(threading.Thread):
 	def __init__(self):
 		#self.arg = arg
 		self.stop_flag = False
+		self.store_log = False
 		self.maxWindow = 20
 		self.defaultInterval = 1
 		self.MonitoringParameters = []
+		self.DiagnosticModels = []
 
 	def stop(self):
 		self.stop_flag = True
 
 	def addMonitoringParameter(self,m):
 		self.MonitoringParameters.append(m)
+
+	def addDiagnosticModel(self,d):
+		self.DiagnosticModels.append(d)
 
 	def wheightedAverage(self,values,window):
 		average=0
@@ -126,7 +147,6 @@ class Diagnoser(threading.Thread):
 			counter+=1
 		return(average/counter)
 	
-	#runDiagnoser(diagnostic,ns=n)
 	def runDiagnoser(self,diagnostic,vnf=None,ns=None):
 		while not self.stop_flag:
 		 	size = len(diagnostic.monParList)
@@ -134,6 +154,7 @@ class Diagnoser(threading.Thread):
 				parameter = diagnostic.monParList[i]
 				try:
 					choose = filter(lambda x: x.name==parameter, self.MonitoringParameters).pop()
+
 					func = getattr(self,diagnostic.function[i])
 					output = func(choose.values,diagnostic.window)
 					tempCondition = True
@@ -141,13 +162,20 @@ class Diagnoser(threading.Thread):
 						if not eval(str(output)+cond):
 							tempCondition = False
 					if tempCondition is True:
+						diagnostic.lastResult=diagnostic.result[i]
 						if vnf is not None:
-							vnf.insertState(diagnostic.result[i])
+							vnf.insertState(diagnostic.result[i],diagnostic.name)
 						if ns is not None:
-							ns.insertState(diagnostic.result[i])
+							ns.insertState(diagnostic.result[i],diagnostic.name)
+						if self.store_log:
+							now = datetime.datetime.now()
+							with open('diagnoser/Logs/'+diagnostic.name, 'a') as outfile:
+								outfile.write('%s\t%s\t%s\t%s\t%s\n' % ( str(now) , choose.name,diagnostic.function[i], str(output), diagnostic.lastResult))
 				except:
 					print "empty values for ", parameter 
 			time.sleep(diagnostic.interval)
+		return
+
 
 	def runMonitor(self,diagnostic):
 		while not self.stop_flag:
@@ -155,6 +183,10 @@ class Diagnoser(threading.Thread):
 				choose = filter(lambda x: x.name==parameter, self.MonitoringParameters).pop()
 				output = commands.getoutput(choose.terminalCommand).replace(",",".")
 				choose.insertValue(float(output),diagnostic.window)
+				if self.store_log:
+					now = datetime.datetime.now()
+					with open('diagnoser/Logs/'+parameter.name, 'a') as outfile:
+						outfile.write('%s\t%s\n' % ( str(now) , str(output)))
 			time.sleep(diagnostic.interval)
 
 	def runAllMonitors(self):
@@ -162,7 +194,23 @@ class Diagnoser(threading.Thread):
 			for parameter in self.MonitoringParameters:
 				output = commands.getoutput(parameter.terminalCommand).replace(",",".")
 				parameter.insertValue(float(output),self.maxWindow)
+				if self.store_log:
+					now = datetime.datetime.now()
+					with open('diagnoser/Logs/'+parameter.name, 'a') as outfile:
+						outfile.write('%s\t%s\n' % ( str(now) , str(output)))
 			time.sleep(self.defaultInterval)
+		return
+
+	def verifyStateChange(self,ag,elementList):
+		while not self.stop_flag:
+			for element in elementList:
+				current = element.getLastNState(1)
+				last = element.getLastNState(2)
+				if current != "" and last != "":
+					if current.getState() != last.getState():
+						obj = Result(current.diagnosticName,element.id,current.getState(),str(current.getTimestamp()))
+						ag.sendMsgtoManager(json.dumps(obj.__dict__))
+			time.sleep(ag.stateInterval)
 
 
 
