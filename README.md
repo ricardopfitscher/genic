@@ -12,8 +12,13 @@ Who is Guilty?
 **DReAM Python API**
 
 * ip:9999 - Visual interface
-* ip:9999/api/agentd - GET or POST agent information
+* || /api/agentd - GET or POST agent information
 	* JSON Example: {"name": "Agent","id":1, "manager":"localhost", "manager_port":8765, "stateInterval":1}
+* || /api/diagnostics/[name] - GET, DELETE or POST Diagnostic models
+	* GET - allows requesting the diagnostics by name or, if the name is empty, show all
+	* DELETE - delete the 'name' diagnostic model
+	* POST - update or set a diagnostic model
+	* JSON Example: {"function": ["average", "average", "average", "average"], "name": "CPU_FULL", "interval": 1, "monParList": ["cpu_usage", "cpu_usage", "steal_usage", "cpu_usage"], "window": 5, "result": ["normal", "sub", "sub", "over"], "lastResult": "over", "conditionals": [["<80", ">=30"], [">=80"], [">=5"], ["<30"], []]}
 
 
 
