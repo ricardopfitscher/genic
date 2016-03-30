@@ -5,7 +5,19 @@ Who is Guilty?
 
 *monitor* includes the current monitor implementation 
 
+*monitor/DReAM-python* an implementation of DReAM's monitoring agent with REST web service
+
 *results* includes the experimental results
+
+**DReAM Python API**
+
+* ip:9999 - Visual interface
+* ip:9999/api/agentd - GET or POST agent information
+	* JSON Example: {"name": "Agent","id":1, "manager":"localhost", "manager_port":8765, "stateInterval":1}
+
+
+
+ 
 
 **Reporting**
 
