@@ -14,4 +14,8 @@ curl http://143.54.12.174:9999/api/diagnoserInterface/start_monitors
 
 curl http://143.54.12.174:9999/api/diagnoserInterface/start_diagnoser/VNF1/CPU_FULL
 
+curl http://143.54.12.174:9999/api/diagnoserInterface/start_log
+
+
+
 
