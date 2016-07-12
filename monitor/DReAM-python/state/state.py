@@ -6,7 +6,7 @@ class State(object):
 		self.value = value
 		self.timestamp = datetime.datetime.now()
 		self.diagnosticName = diag
-		#TOTHINK: Store the diagnostic that has defined this state?
+
 
 	def setState(self, value):
 		self.value = value

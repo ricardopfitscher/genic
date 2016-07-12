@@ -1,1 +1,1 @@
-{"description": "", "window": 50, "values": [], "terminalCommand": "mpstat 1 1 | tail -n 1 |  awk {' print 100-$12 '}", "type": "", "name": "cpu_usage"}
+{"description": "", "window": 50, "terminalCommand": "mpstat 1 1 | tail -n 1 |  awk {' print 100-$12 '}", "values": [], "type": "", "name": "cpu_usage"}

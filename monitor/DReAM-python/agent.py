@@ -122,6 +122,8 @@ class Parameters:
 	#curl -H "Content-Type: application/json" -X POST --data-binary @diagnoser/MonitoringParameter/steal_usage http://143.54.12.174:9999/api/parameters
 	@cherrypy.tools.json_in()
 	def POST(self):
+		#TOTHINK: authentication:
+		#attention is needed here, a terminal command can turn off the VNF
 		data = cherrypy.request.json
 
 		m = MonitoringParameter()
@@ -177,11 +179,18 @@ class DiagnoserInterface:
 		elif action == "stop_log":
 			diagnoserDeamon.store_log=False
 
+		elif action == "last_state":
+			if element is not None:
+				choose_element = filter(lambda x: x.name==element, monitoredElements).pop()
+				current=choose_element.getLastNState(1)
+				obj = Result(current.diagnosticName,choose_element.id,current.getState(),str(current.getTimestamp()))
+				return(json.dumps(obj.__dict__))
+
 class VNFs:
 	exposed = True
 
 	def GET(self, name=None):
-		
+		#TODO: cut off the states from this answer
 		names = {obj.name:obj for obj in monitoredElements}
 		if name is None:
 			l=[]
@@ -189,6 +198,7 @@ class VNFs:
 				l.append(element.return_JSON())
 			return('Monitored VNFs \n: %s' % str(l) )
 		elif name in names:
+
 			return(names[name].return_JSON())
 		else:
 			return('No VNF with name %s' % name)
