@@ -3,11 +3,13 @@ Who is Guilty?
 
 **Directories**
 
-*monitor* includes the current monitor implementation 
+*monitor* includes the current guiltiness monitor implementation
+
+*monitor/python* contains a monitor writed in python 
 
 *monitor/DReAM-python* an implementation of DReAM's monitoring agent with REST web service
 
-*results* includes the experimental results
+*results* will include the experimental results
 
 **DReAM Python API**
 
