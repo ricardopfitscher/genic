@@ -7,7 +7,7 @@
 #define TICS 1
 #define WINDOW 10
 #define DEBUG 0
-#define CPUS 1
+#define CPUS 8
 #define ACTIVE_TRSH 20
 
 typedef struct node{
@@ -113,6 +113,7 @@ FILE *file, *ifp;
 long int cpu_usage, cpu_usage_prev=9999999, active_duration=0;
 float cpu_usage_perc;
 float queue,kernel_queue;
+float queue_usage;
 //float cpu_time_series[WINDOW];
 //float queue_time_series[WINDOW];
 float guiltiness;
@@ -276,9 +277,9 @@ main(int argc, char **argv){
 
     	if(DEBUG) printf("QUEUE Moving Average: %f\n", queue_average);
     	if(DEBUG) printf("QUEUE WMA: %f\n", queue_average_wheighted);
-    	guiltiness=-0.88*(active_time_percent/(1+queue_average))+1.02*active_time_percent+0.0000014*queue_average;
-    	if(guiltiness>1.0) guiltiness=100;
-    	else guiltiness=guiltiness*100;
+	queue_usage=queue_average/1500000;
+    	guiltiness=-0.9*(active_time_percent/(1+queue_average))+1.0*active_time_percent+0.1*(1/(1.01-(cpu_usage_perc/100.0)))+0.001*(1/(1-queue_usage));
+    	if(guiltiness>1.0) guiltiness=1;
     	if(DEBUG) printf("GUILTINESS: %f\n", guiltiness);
     	sprintf(command,"echo %f >> log/guiltiness",guiltiness);
 		system(command);
