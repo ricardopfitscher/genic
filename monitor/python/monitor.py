@@ -3,8 +3,7 @@ import psutil
 import time
 import threading
 import subprocess
-
-
+import sys
 
 class Guiltiness():
 	def __init__(self,c1,c2,c3,c4):
@@ -27,9 +26,15 @@ class Guiltiness():
 		with open('guiltiness.log.dat', 'a') as outfile:
 								outfile.write('%s\t%.2f\t%.2f\t%.2f\t%.2f\t%.2f\n' % ( str(self.timestamp) , self.guiltiness , self.U, self.A, self.Q, self.Qu))
 
+	def update_coeff(c1,c2,c3,c4):
+		self.c1=c1
+		self.c2=c2
+		self.c3=c3
+		self.c4=c4
+
 
 class Monitor():
-	def __init__(self):
+	def __init__(self, iface= None):
 		self.stop_flag = True
 		self.window = 30
 		self.threshold = 20.0
@@ -37,6 +42,7 @@ class Monitor():
 		self.cpuTimeSeries = []
 		self.queueTimeSeries = []
 		self.gList =[]
+		self.interface = iface
 
 	def computeActive(self):
 		count=0
@@ -59,7 +65,7 @@ class Monitor():
 		while not self.stop_flag:
 			g = Guiltiness(0.1,1,0.001,0.9)
 			cpuTemp = psutil.cpu_percent()
-			queueTemp = "tc -s -d qdisc show dev eth0 | grep backlog | awk {' print $2 '} | sed \'s/b//\'"
+			queueTemp = "tc -s -d qdisc show dev "+ self.interface +" | grep backlog | awk {' print $2 '} | sed \'s/b//\'"
 			proc=subprocess.Popen(queueTemp, shell=True, stdout=subprocess.PIPE, )
 			queueTemp=float(proc.communicate()[0])
 			
@@ -83,7 +89,10 @@ class Monitor():
 
 
 if __name__ == '__main__':
-	m = Monitor()
+	if sys.argv:
+		m = Monitor(sys.argv[1])
+	else:
+		m = Monitor()
 	try:
 			m.stop_flag=False
 			with open('guiltiness.log.dat', 'a') as outfile:
