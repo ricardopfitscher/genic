@@ -34,7 +34,7 @@ class Guiltiness():
 
 
 class Monitor():
-	def __init__(self, iface= None):
+	def __init__(self, iface, g):
 		self.stop_flag = True
 		self.window = 30
 		self.threshold = 20.0
@@ -63,7 +63,7 @@ class Monitor():
 	def runMonitor(self):
 		count = 0
 		while not self.stop_flag:
-			g = Guiltiness(0.1,1,0.001,0.9)
+			#g = Guiltiness(0.1,1,0.001,0.9)
 			cpuTemp = psutil.cpu_percent()
 			queueTemp = "tc -s -d qdisc show dev "+ self.interface +" | grep backlog | awk {' print $2 '} | sed \'s/b//\'"
 			proc=subprocess.Popen(queueTemp, shell=True, stdout=subprocess.PIPE, )
@@ -89,16 +89,20 @@ class Monitor():
 
 
 if __name__ == '__main__':
-	if sys.argv:
-		m = Monitor(sys.argv[1])
+	if len(sys.argv) < 7:
+		print "call: python monitor.py interface-name c1 c2 c3 c4 time_to_run"
 	else:
-		m = Monitor()
+		g = Guiltiness(float(sys.argv[2]),float(sys.argv[3]),float(sys.argv[4]),float(sys.argv[5]))
+		m = Monitor(sys.argv[1],g)
 	try:
 			m.stop_flag=False
-			with open('guiltiness.log.dat', 'a') as outfile:
+			with open('guiltiness.log.dat', 'w') as outfile:
 								outfile.write('time\tguiltiness\tusage\tactive\tqueue\tqueueUsage\n')
 			monitorThread = threading.Thread(target=m.runMonitor)
 			monitorThread.start()
+			time.sleep(int(sys.argv[6]))
+			m.stop_flag=True
+
 	except:
 			print 'error in starting monitor'
 	
