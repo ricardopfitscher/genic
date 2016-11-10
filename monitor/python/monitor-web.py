@@ -119,17 +119,18 @@ class Data():
 	# Retornar o conjunto de metricas armazenadas (gList)
 	@cherrypy.tools.json_out()
 	def GET(self): 
-		if DEBUG: print "webserver output:", m.gList
-		returnData = m.gList
+		if m != 0:
+			if DEBUG: print "webserver output:", m.gList
+			returnData = m.gList
+		else:
+			returnData = 'Ok'
 		return returnData
 
-	#add_data(0.24,0.66,0.0043645545,6546,0.94) [0.24,0.66,0.0043645545,6546,0.94]
-	#curl -H "Content-Type: application/json" -X POST -d '{"rts":[rt] ,"metrics":[[U,A,Qu,Q]]}' http://143.54.12.174:9999/api/data
-	#curl -H "Content-Type: application/json" -X POST -d '{"rts":[0.94] ,"metrics":[[0.24,0.66,0.0043645545,6546]]}' http://143.54.12.174:9999/api/data
+	#curl -H "Content-Type: application/json" -X POST -d '{"c1":0.01, "c2":0.9, "c3":0.001, "c4":0.8}' http://143.54.12.174:9999/api/data
 	@cherrypy.tools.json_in()
 	def POST(self):
 		data = cherrypy.request.json
-		inputData = {'c1':0.01, 'c2':0.9, 'c3':0.001, 'c4':0.8}
+		inputData = '{"c1":0.01, "c2":0.9, "c3":0.001, "c4":0.8}'
 		inputData = data
 		if DEBUG: print "webserver inputed data:", inputData
 		g.update_coeff(inputData['c1'],inputData['c2'],inputData['c3'],inputData['c4'])
