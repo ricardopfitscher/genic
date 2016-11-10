@@ -41,7 +41,7 @@ class Guiltiness():
 								outfile.write('%s\t%.2f\t%.2f\t%.2f\t%.2f\t%.2f\n' % ( str(self.timestamp) , self.guiltiness , self.U, self.A, self.Q, self.Qu))
 
 
-	def update_coeff(c1,c2,c3,c4):
+	def update_coeff(self,c1,c2,c3,c4):
 		self.c1=c1
 		self.c2=c2
 		self.c3=c3
