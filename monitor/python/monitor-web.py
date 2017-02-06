@@ -36,7 +36,7 @@ class Guiltiness():
 		self.guiltiness = self.c1*(1/(1-self.U)) + self.c2*self.A + self.c3*(1/(1-self.Qu)) - self.c4*(self.A/(1+self.Q))
 		self.timestamp = datetime.datetime.now()
 
-	def show(self):
+	def log(self):
 		with open('guiltiness.log.dat', 'a') as outfile:
 								outfile.write('%s\t%.2f\t%.2f\t%.2f\t%.2f\t%.2f\n' % ( str(self.timestamp) , self.guiltiness , self.U, self.A, self.Q, self.Qu))
 
@@ -105,7 +105,7 @@ class Monitor():
 			self.gList['Q'].append(g.Q)
 			self.gList['Qu'].append(g.Qu)
 			self.gList['timestamp'].append(str(g.timestamp))
-			g.show()
+			g.log()
 			time.sleep(1)
 
 def CORS():
