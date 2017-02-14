@@ -39,7 +39,7 @@ class Guiltiness():
 class Monitor():
 	def __init__(self, iface, g):
 		self.stop_flag = True
-		self.window = 30
+		self.window = 5
 		self.threshold = 20.0
 		self.queueSize = 1500000
 		self.cpuTimeSeries = []
