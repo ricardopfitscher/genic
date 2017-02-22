@@ -81,7 +81,7 @@ class Monitor():
 				self.cpuTimeSeries.append(cpuTemp)
 				self.queueTimeSeries.append(queueTemp)
 
-			g.U = self.computeAverage('cpu')/100.0
+			g.U = psutil.cpu_percent()/100 #self.computeAverage('cpu')/100.0
 			g.A = self.computeActive()
 			g.Q = self.computeAverage('queue')
 			g.Qu = self.computeQueueUsage()
