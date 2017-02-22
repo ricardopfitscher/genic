@@ -67,7 +67,9 @@ class Monitor():
 		count = 0
 		while not self.stop_flag:
 			#g = Guiltiness(0.1,1,0.001,0.9)
-			cpuTemp = psutil.cpu_percent()
+			cpuTemp = "mpstat | grep all | awk {'print 100-$12'}"
+			proc=subprocess.Popen(queueTemp, shell=True, stdout=subprocess.PIPE, )
+			cpuTemp = float(proc.communicate()[0])
 			queueTemp = "tc -s -d qdisc show dev "+ self.interface +" | grep backlog | awk {' print $2 '} | sed \'s/b//g\'"
 			proc=subprocess.Popen(queueTemp, shell=True, stdout=subprocess.PIPE, )
 			queueTemp=float(proc.communicate()[0])
@@ -81,7 +83,7 @@ class Monitor():
 				self.cpuTimeSeries.append(cpuTemp)
 				self.queueTimeSeries.append(queueTemp)
 
-			g.U = psutil.cpu_percent()/100 #self.computeAverage('cpu')/100.0
+			g.U = self.computeAverage('cpu')/100.0
 			g.A = self.computeActive()
 			g.Q = self.computeAverage('queue')
 			g.Qu = self.computeQueueUsage()
