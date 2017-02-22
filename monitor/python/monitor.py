@@ -68,7 +68,7 @@ class Monitor():
 		while not self.stop_flag:
 			#g = Guiltiness(0.1,1,0.001,0.9)
 			cpuTemp = "mpstat | grep all | awk {'print 100-$12'}"
-			proc=subprocess.Popen(queueTemp, shell=True, stdout=subprocess.PIPE, )
+			proc=subprocess.Popen(cpuTemp, shell=True, stdout=subprocess.PIPE, )
 			cpuTemp = float(proc.communicate()[0])
 			queueTemp = "tc -s -d qdisc show dev "+ self.interface +" | grep backlog | awk {' print $2 '} | sed \'s/b//g\'"
 			proc=subprocess.Popen(queueTemp, shell=True, stdout=subprocess.PIPE, )
