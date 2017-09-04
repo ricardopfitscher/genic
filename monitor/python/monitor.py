@@ -75,7 +75,7 @@ class Monitor():
 				cpuTemp = "cat /sys/fs/cgroup/cpu/cpuacct.usage"
 				proc=subprocess.Popen(cpuTemp, shell=True, stdout=subprocess.PIPE, )
 				cpuCurrent = float(proc.communicate()[0])
-				cpuTemp = (cpuCurrent-cpuPrevious)/(10^9)
+				cpuTemp = (cpuCurrent-cpuPrevious)/(10**6)
 				print cpuTemp
 				if cpuTemp > 100:
 					cpuTemp = 100
