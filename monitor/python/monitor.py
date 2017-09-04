@@ -76,6 +76,8 @@ class Monitor():
 				proc=subprocess.Popen(cpuTemp, shell=True, stdout=subprocess.PIPE, )
 				cpuCurrent = float(proc.communicate()[0])
 				cpuTemp = (cpuCurrent-cpuPrevious)/(10^6)
+				if cpuTemp > 100:
+					cpuTemp = 100
 			except:
 				cpuTemp = "mpstat 1 1 | grep all | head -n 1 | awk {'print 100-$12'}"
 				proc=subprocess.Popen(cpuTemp, shell=True, stdout=subprocess.PIPE, )
