@@ -9,8 +9,8 @@
 
 #apt-get install sysstat
 #apt-get install perf-tools-unstable
-sar -A 1 $4 >> output-sarAll-$1-$2-$3-$5.dat &
-./cachestat >> output-cache-$1-$2-$3-$5.dat &
+#sar -A 1 $4 >> output-sarAll-$1-$2-$3-$5.dat &
+#./cachestat >> output-cache-$1-$2-$3-$5.dat &
 mpstat 1 $4 >> output-mpstat-$1-$2-$3-$5.dat &
 iostat 1 $4 >> output-iostat-$1-$2-$3-$5.dat &
 ifstat 1 $4 >> output-ifstat-$1-$2-$3-$5.dat &
@@ -22,8 +22,17 @@ do
 	tc -s -d qdisc show dev eth0 |grep backlog >> output-tc-$1-$2-$3-$5.dat
 	ethtool -S eth0 | grep dropp >> output-ethDropp-$1-$2-$3-$5.dat
 	ifconfig eth0 | grep dropp >> output-ethDropp2-$1-$2-$3-$5.dat
-
-	echo $i
-	sleep 1
+	#For cpu monitoring in docker containers, please uncomment the following idented lines:
+		prevTotA=($(cat /sys/fs/cgroup/cpuacct/cpuacct.usage))
+		memUsage=($(cat /sys/fs/cgroup/memory/memory.usage_in_bytes))
+		memLimit=($(cat /sys/fs/cgroup/memory/memory.limit_in_bytes))
+		percentM=($(awk "BEGIN {print 100*($memUsage)/$memLimit}"))
+		echo $percentM >> output-dockerMem-$1-$2-$3-$5.dat
+		sleep 1
+		TotA=($(cat /sys/fs/cgroup/cpuacct/cpuacct.usage))
+		percentCPU=($(awk "BEGIN {print ($TotA-$prevTotA)/10000000}"))
+		echo $percentCPU >> output-dockerCPU-$1-$2-$3-$5.dat
+	#echo $i
+	#sleep 1
 done
 pkill -f cachestat
