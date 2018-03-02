@@ -25,7 +25,7 @@ do
 	#For cpu monitoring in docker containers, please uncomment the following idented lines:
 		prevTotA=($(cat /sys/fs/cgroup/cpuacct/cpuacct.usage))
 		memUsage=($(cat /sys/fs/cgroup/memory/memory.usage_in_bytes))
-		percentM=($(awk "BEGIN {print 100*($memUsage)/(64*2**30)}"))
+		percentM=($(awk "BEGIN {print 100*($memUsage)/(64*(2^30))}"))
 		cat /sys/fs/cgroup/blkio/blkio.io_serviced | grep Total | cut -d ' ' -f 2  >> output-dockerIOserviced-$1-$2-$3-$5.dat
 		cat /sys/fs/cgroup/blkio/blkio.io_queued | grep Total | cut -d ' ' -f 2 >> output-dockerIOqueued-$1-$2-$3-$5.dat
 		echo $percentM >> output-dockerMem-$1-$2-$3-$5.dat
